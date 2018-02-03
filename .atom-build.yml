@@ -1,0 +1,7 @@
+cmd: "make"
+name: "Make All"
+sh: true,
+targets:
+  Make_run:
+    cmd: "make run"
+    name: "Make Run" 
