@@ -1,12 +1,24 @@
 all:
-clean:
+#TODO: Make Clean
 
+#Flags for the gcc compiler
 gccFlags 		:= -fno-pie -m32 -ffreestanding
 
+#Set up the src and bin directories
 src_root 		:= src
 bin_root 		:= bin
-#subDirs			:= boot cpu drivers kernel libc shell
 
+#This is left blank so that new folders can be added as required
+subDirs			:= $(sort $(dir $(wildcard $(src_root)/*/)))
+
+#TODO: Allow for multiple subfolders
+
+#Replace the src root with nothing
+subDirs			:= $(subst $(src_root)/,,$(subDirs))
+subDirs			:= $(subst /,,$(subDirs))
+$(info subDirs=$(subDirs))
+
+#Begin setting up suffixes for files
 cSrcSuf 	:= .c
 cHeadSuf 	:= .h
 asmSrcSuf	:= .asm
@@ -21,14 +33,10 @@ cSource		:= $(foreach d, $(addprefix $(src_root)/,$(subDirs)), $(wildcard $(addp
 asmSource	:= $(foreach d, $(addprefix $(src_root)/,$(subDirs)), $(wildcard $(addprefix $d/*, $(asmSrcSuf))))
 sSource		:= $(foreach d, $(addprefix $(src_root)/,$(subDirs)), $(wildcard $(addprefix $d/*, $(sSrcSuf))))
 
+#Output this info to the console for debugging
 $(info cSource=$(cSource))
 $(info asmSource=$(cSource))
 $(info sSource=$(sSource))
-
-ifeq ($(subDirs),)
-  cSource := $(shell find $(src_root) -type f $(foreach s,$(cSrcSuf),$(if $(findstring $s,$(firstword $(cSrcSuf))),,-o) -name '*$s'))
-endif
-
 
 #Move on to Source -> object file mapping
 #Map $(src_root) -> $(bin_root) with identical directories
@@ -54,7 +62,6 @@ $(info cObj=$(cObj))
 
 
 all: os-image
-clean: ; rm -rf $(bin_root)/$(subDirs)/*.*
 
 run: os-image
 	qemu-system-i386 -fda os-image
